@@ -15,6 +15,7 @@ from .const import (
     ATTR_MESSAGE,
     ATTR_RECIPIENT,
     ATTR_RECIPIENTS,
+    ATTR_CHANNEL,
     CONF_CHANNEL,
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
@@ -33,6 +34,7 @@ SEND_SMS_SCHEMA = vol.Schema(
         vol.Optional(ATTR_RECIPIENT): cv.string,
         vol.Optional(ATTR_RECIPIENTS): vol.Any(cv.string, [cv.string]),
         vol.Required(ATTR_MESSAGE): cv.string,
+        vol.Optional(ATTR_CHANNEL): vol.All(vol.Coerce(int), vol.Range(min=1)),
     }
 )
 
@@ -98,6 +100,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             recipient = call.data.get(ATTR_RECIPIENT)
             recipients = call.data.get(ATTR_RECIPIENTS)
             message = call.data[ATTR_MESSAGE]
+            channel = call.data.get(ATTR_CHANNEL)
 
             normalized_recipients = _normalize_recipients(recipient, recipients)
             if not normalized_recipients:
@@ -109,6 +112,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             if not domain_data:
                 raise HomeAssistantError("GoSMS integration is not loaded.")
 
+            if len(domain_data) > 1:
+                raise HomeAssistantError(
+                    "Multiple GoSMS accounts are configured. Service calls do not support selecting between them. "
+                    "Please keep only one GoSMS integration entry enabled."
+                )
+
             first_entry_data = next(iter(domain_data.values()))
             active_client: GoSmsApiClient = first_entry_data[DATA_CLIENT]
 
@@ -116,6 +125,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 await active_client.async_send_sms(
                     recipients=normalized_recipients,
                     message=message,
+                    channel=channel,
                 )
             except GoSmsError as exception:
                 raise HomeAssistantError("Failed to send SMS via GoSMS.") from exception
@@ -134,6 +144,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             recipient = call.data.get(ATTR_RECIPIENT)
             recipients = call.data.get(ATTR_RECIPIENTS)
             message = call.data[ATTR_MESSAGE]
+            channel = call.data.get(ATTR_CHANNEL)
 
             normalized_recipients = _normalize_recipients(recipient, recipients)
             if not normalized_recipients:
@@ -145,6 +156,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             if not domain_data:
                 raise HomeAssistantError("GoSMS integration is not loaded.")
 
+            if len(domain_data) > 1:
+                raise HomeAssistantError(
+                    "Multiple GoSMS accounts are configured. Service calls do not support selecting between them. "
+                    "Please keep only one GoSMS integration entry enabled."
+                )
+
             first_entry_data = next(iter(domain_data.values()))
             active_client: GoSmsApiClient = first_entry_data[DATA_CLIENT]
 
@@ -152,6 +169,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 return await active_client.async_preview_sms(
                     recipients=normalized_recipients,
                     message=message,
+                    channel=channel,
                 )
             except GoSmsError as exception:
                 raise HomeAssistantError("Failed to preview SMS via GoSMS.") from exception

@@ -57,7 +57,7 @@ class GoSmsApiClient:
 
             return str(access_token)
 
-    async def async_send_sms(self, recipients: list[str], message: str) -> dict[str, Any]:
+    async def async_send_sms(self, recipients: list[str], message: str, channel: int | None = None) -> dict[str, Any]:
         """Send SMS message."""
         access_token = await self.async_get_access_token()
 
@@ -66,7 +66,7 @@ class GoSmsApiClient:
         }
 
         payload = {
-            "channel": self._channel,
+            "channel": channel if channel is not None else self._channel,
             # GoSMS accepts recipients in the same string field used for single-recipient sending.
             "recipients": ",".join(recipients),
             "message": message,
@@ -111,7 +111,7 @@ class GoSmsApiClient:
                 "raw": data,
             }
 
-    async def async_preview_sms(self, recipients: list[str], message: str) -> dict[str, Any]:
+    async def async_preview_sms(self, recipients: list[str], message: str, channel: int | None = None) -> dict[str, Any]:
         """Preview SMS details without sending a message."""
         access_token = await self.async_get_access_token()
 
@@ -120,7 +120,7 @@ class GoSmsApiClient:
         }
 
         payload = {
-            "channel": self._channel,
+            "channel": channel if channel is not None else self._channel,
             # GoSMS SendMessage schema allows recipients as string/array/object.
             "recipients": recipients,
             "message": message,

@@ -25,6 +25,14 @@ send_sms:
       selector:
         text:
           multiline: true
+    channel:
+      name: Channel
+      description: Optional GoSMS Channel ID. If omitted, the default configured channel is used.
+      required: false
+      selector:
+        number:
+          min: 1
+          mode: box
 
 preview_sms:
   name: Preview SMS
@@ -53,3 +61,11 @@ preview_sms:
       selector:
         text:
           multiline: true
+    channel:
+      name: Channel
+      description: Optional GoSMS Channel ID. If omitted, the default configured channel is used.
+      required: false
+      selector:
+        number:
+          min: 1
+          mode: box

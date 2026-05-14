@@ -27,7 +27,8 @@ Early testing version.
 
 ## Usage
 
-### Single Recipient (Backward Compatible)
+
+### Single Recipient (Default Channel)
 
 ```yaml
 action: gosms.send_sms
@@ -47,6 +48,16 @@ data:
   message: "Test SMS to multiple recipients"
 ```
 
+### Channel Override Example
+
+```yaml
+action: gosms.send_sms
+data:
+  channel: 123456
+  recipient: "+420777123456"
+  message: "Test from another GoSMS channel"
+```
+
 ### SMS Preview (Dry Run)
 
 `gosms.preview_sms` checks message details using GoSMS test endpoint and does not send an SMS.
@@ -54,6 +65,7 @@ data:
 ```yaml
 action: gosms.preview_sms
 data:
+  channel: 123456
   recipients:
     - "+420777123456"
     - "+420777987654"
@@ -87,6 +99,13 @@ mode: single
 - The GoSMS Balance sensor is updated periodically (every 30 minutes).
 
 ## Changelog
+
+
+### v0.5.0
+
+- Added optional `channel` field to `gosms.send_sms` and `gosms.preview_sms` services. If omitted, the default configured channel is used. If provided, the specified GoSMS Channel ID is used for that call only.
+- Removed support for `config_entry_id` in service calls (was never released in a public version).
+- Existing automations remain backward compatible.
 
 ### v0.4.0
 

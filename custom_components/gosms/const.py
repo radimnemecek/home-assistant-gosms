@@ -6,10 +6,10 @@ CONF_CHANNEL = "channel"
 
 SERVICE_SEND_SMS = "send_sms"
 SERVICE_PREVIEW_SMS = "preview_sms"
-
 ATTR_RECIPIENT = "recipient"
 ATTR_RECIPIENTS = "recipients"
 ATTR_MESSAGE = "message"
+ATTR_CHANNEL = "channel"
 
 DATA_CLIENT = "client"
 DATA_COORDINATOR = "coordinator"
