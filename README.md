@@ -113,7 +113,19 @@ mode: single
 - Prefer international phone number format such as `+420777123456`.
 - The integration does not store SMS history.
 
+## Validation
+
+- GitHub Actions validates this repository on push, pull request, and manual runs.
+- The workflow runs HACS validation and Home Assistant Hassfest validation.
+
 ## Changelog
+
+
+### v0.8.0
+
+- Added GitHub Actions validation workflow for HACS and Hassfest checks.
+- Added validation documentation for development/public-readiness.
+- No Home Assistant runtime behavior changed.
 
 
 ### v0.7.0
