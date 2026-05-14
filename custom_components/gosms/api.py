@@ -9,6 +9,7 @@ _LOGGER = logging.getLogger(__name__)
 
 TOKEN_URL = "https://app.gosms.eu/oauth/v2/token"
 MESSAGES_URL = "https://app.gosms.eu/api/v1/messages"
+MESSAGES_TEST_URL = "https://app.gosms.eu/api/v1/messages/test"
 ORGANIZATION_DETAIL_URL = "https://app.gosms.eu/api/v1"
 
 
@@ -108,4 +109,61 @@ class GoSmsApiClient:
                 "currency": data.get("currency"),
                 "invoicing_type": data.get("invoicingType"),
                 "raw": data,
+            }
+
+    async def async_preview_sms(self, recipients: list[str], message: str) -> dict[str, Any]:
+        """Preview SMS details without sending a message."""
+        access_token = await self.async_get_access_token()
+
+        params = {
+            "access_token": access_token,
+        }
+
+        payload = {
+            "channel": self._channel,
+            # GoSMS SendMessage schema allows recipients as string/array/object.
+            "recipients": recipients,
+            "message": message,
+        }
+
+        async with self._session.post(MESSAGES_TEST_URL, params=params, json=payload) as response:
+            data: dict[str, Any] = await response.json(content_type=None)
+
+            if response.status >= 400:
+                raise GoSmsError("Unable to preview SMS via GoSMS.")
+
+            stats = data.get("stats") if isinstance(data.get("stats"), dict) else {}
+            sending_info = (
+                data.get("sendingInfo") if isinstance(data.get("sendingInfo"), dict) else {}
+            )
+
+            def _to_float(value: Any) -> float | None:
+                try:
+                    return float(value)
+                except (TypeError, ValueError):
+                    return None
+
+            def _to_int(value: Any) -> int | None:
+                try:
+                    return int(value)
+                except (TypeError, ValueError):
+                    return None
+
+            currency = stats.get("currency")
+            status = sending_info.get("status")
+
+            return {
+                "price": _to_float(stats.get("price")),
+                "currency": currency.strip() if isinstance(currency, str) else None,
+                "sms_count": _to_int(stats.get("smsCount")),
+                # GoSMS OpenAPI uses the key name "messagePatsCount" in TestSendMessageDetail.
+                "message_parts_count": _to_int(stats.get("messagePatsCount")),
+                "recipients_count": _to_int(stats.get("recipientsCount")),
+                "has_diacritics": (
+                    stats.get("hasDiacritics")
+                    if isinstance(stats.get("hasDiacritics"), bool)
+                    else None
+                ),
+                "status": status if isinstance(status, str) else None,
+                "number_types": stats.get("numberTypes") if isinstance(stats.get("numberTypes"), dict) else None,
             }

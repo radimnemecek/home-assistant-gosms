@@ -25,3 +25,31 @@ send_sms:
       selector:
         text:
           multiline: true
+
+preview_sms:
+  name: Preview SMS
+  description: Preview SMS details (price/segments/validation) using GoSMS test endpoint. This action does not send an SMS.
+  fields:
+    recipient:
+      name: Recipient
+      description: Single phone number (backward-compatible field).
+      required: false
+      example: "+420777123456"
+      selector:
+        text:
+    recipients:
+      name: Recipients
+      description: Multiple phone numbers as a list in YAML or comma/newline separated text.
+      required: false
+      example: "[\"+420777123456\", \"+420777987654\"]"
+      selector:
+        text:
+          multiline: true
+    message:
+      name: Message
+      description: SMS message text.
+      required: true
+      example: "Test SMS preview from Home Assistant"
+      selector:
+        text:
+          multiline: true

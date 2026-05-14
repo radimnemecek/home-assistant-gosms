@@ -47,6 +47,20 @@ data:
   message: "Test SMS to multiple recipients"
 ```
 
+### SMS Preview (Dry Run)
+
+`gosms.preview_sms` checks message details using GoSMS test endpoint and does not send an SMS.
+
+```yaml
+action: gosms.preview_sms
+data:
+  recipients:
+    - "+420777123456"
+    - "+420777987654"
+  message: "Preview SMS from Home Assistant"
+response_variable: preview_result
+```
+
 ## Example Automation
 
 ```yaml
@@ -73,6 +87,12 @@ mode: single
 - The GoSMS Balance sensor is updated periodically (every 30 minutes).
 
 ## Changelog
+
+### v0.4.0
+
+- Added `gosms.preview_sms` service using GoSMS test endpoint for safe SMS preview without sending.
+- `gosms.preview_sms` supports `recipient` and `recipients` inputs with the same normalization behavior as `gosms.send_sms`.
+- Preview service supports response data for `response_variable` (for example price/currency/sms count when available).
 
 ### v0.3.1
 

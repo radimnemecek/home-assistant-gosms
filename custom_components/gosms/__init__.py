@@ -4,7 +4,7 @@ import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -21,6 +21,7 @@ from .const import (
     DATA_CLIENT,
     DATA_COORDINATOR,
     DOMAIN,
+    SERVICE_PREVIEW_SMS,
     SERVICE_SEND_SMS,
 )
 
@@ -126,6 +127,43 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             schema=SEND_SMS_SCHEMA,
         )
 
+    if not hass.services.has_service(DOMAIN, SERVICE_PREVIEW_SMS):
+
+        async def async_preview_sms(call: ServiceCall) -> dict[str, object | None]:
+            """Preview SMS details without sending the message."""
+            recipient = call.data.get(ATTR_RECIPIENT)
+            recipients = call.data.get(ATTR_RECIPIENTS)
+            message = call.data[ATTR_MESSAGE]
+
+            normalized_recipients = _normalize_recipients(recipient, recipients)
+            if not normalized_recipients:
+                raise HomeAssistantError(
+                    "Either recipient or recipients must contain at least one phone number."
+                )
+
+            domain_data = hass.data.get(DOMAIN, {})
+            if not domain_data:
+                raise HomeAssistantError("GoSMS integration is not loaded.")
+
+            first_entry_data = next(iter(domain_data.values()))
+            active_client: GoSmsApiClient = first_entry_data[DATA_CLIENT]
+
+            try:
+                return await active_client.async_preview_sms(
+                    recipients=normalized_recipients,
+                    message=message,
+                )
+            except GoSmsError as exception:
+                raise HomeAssistantError("Failed to preview SMS via GoSMS.") from exception
+
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_PREVIEW_SMS,
+            async_preview_sms,
+            schema=SEND_SMS_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     hass.async_create_task(coordinator.async_refresh())
 
@@ -141,5 +179,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if not hass.data[DOMAIN]:
             hass.data.pop(DOMAIN)
             hass.services.async_remove(DOMAIN, SERVICE_SEND_SMS)
+            hass.services.async_remove(DOMAIN, SERVICE_PREVIEW_SMS)
 
     return unload_ok
