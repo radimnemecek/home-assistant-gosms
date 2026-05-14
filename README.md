@@ -183,6 +183,11 @@ The workflow runs:
 
 ## Changelog
 
+### v0.9.2
+
+- Adjusted hacs.json for HACS validation.
+- No Home Assistant runtime behavior changed.
+
 ### v0.9.1
 
 - Fixed HACS/Hassfest validation metadata.
