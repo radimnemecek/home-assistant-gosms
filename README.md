@@ -4,7 +4,7 @@ Custom Home Assistant integration for sending SMS messages through GoSMS.
 
 ## Status
 
-Release candidate for public testing.
+Stable public release.
 
 ## Features
 
@@ -182,6 +182,14 @@ The workflow runs:
   - Use `response_variable` in automations or check the response panel in Developer Tools.
 
 ## Changelog
+
+### v1.0.0
+
+- First stable public release.
+- Validated with HACS and Hassfest.
+- Tested installation through HACS custom repository.
+- Tested SMS preview, single-recipient sending, multi-recipient sending, automations, and balance sensor.
+- No runtime behavior changed from v1.0.0-rc3.
 
 ### v1.0.0-rc3
 
