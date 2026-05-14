@@ -26,7 +26,8 @@
       "unknown": "Neočekávaná chyba."
     },
     "abort": {
-      "already_configured": "Tento GoSMS kanál už je nastavený."
+      "already_configured": "Tento GoSMS kanál už je nastavený.",
+      "reconfigure_successful": "Nastavení GoSMS bylo aktualizováno."
     }
   }
 }

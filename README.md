@@ -74,6 +74,11 @@ mode: single
 
 ## Changelog
 
+### v0.3.1
+
+- Added missing translation for `reconfigure_successful` so reconfigure no longer shows raw key text.
+- Fixed Channel ID form behavior: no misleading default during initial setup and validation now requires integer value >= 1.
+
 ### v0.3.0
 
 - Added GoSMS Balance sensor using organization detail data from GoSMS API.

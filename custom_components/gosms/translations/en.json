@@ -26,7 +26,8 @@
       "unknown": "Unexpected error."
     },
     "abort": {
-      "already_configured": "This GoSMS channel is already configured."
+      "already_configured": "This GoSMS channel is already configured.",
+      "reconfigure_successful": "GoSMS configuration was updated."
     }
   }
 }

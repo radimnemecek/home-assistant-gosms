@@ -44,6 +44,14 @@ class GoSmsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def _build_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
         """Build a schema for credential input."""
         defaults = defaults or {}
+        channel_default = defaults.get(CONF_CHANNEL, vol.UNDEFINED)
+
+        channel_field: vol.Marker
+        if channel_default is vol.UNDEFINED:
+            channel_field = vol.Required(CONF_CHANNEL)
+        else:
+            channel_field = vol.Required(CONF_CHANNEL, default=channel_default)
+
         return vol.Schema(
             {
                 vol.Required(CONF_CLIENT_ID, default=defaults.get(CONF_CLIENT_ID, "")): str,
@@ -51,10 +59,7 @@ class GoSmsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_CLIENT_SECRET,
                     default=defaults.get(CONF_CLIENT_SECRET, ""),
                 ): str,
-                vol.Required(
-                    CONF_CHANNEL,
-                    default=defaults.get(CONF_CHANNEL, vol.UNDEFINED),
-                ): int,
+                channel_field: vol.All(vol.Coerce(int), vol.Range(min=1)),
             }
         )
 
