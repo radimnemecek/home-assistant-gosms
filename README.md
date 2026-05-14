@@ -183,6 +183,12 @@ The workflow runs:
 
 ## Changelog
 
+### v1.0.0-rc3
+
+- Fixed multi-recipient SMS sending by sending recipients as an array to GoSMS.
+- Improved safe GoSMS send error messages.
+- No configuration changes required.
+
 ### v0.9.3
 
 - Adjusted HACS validation workflow to pass repository explicitly.

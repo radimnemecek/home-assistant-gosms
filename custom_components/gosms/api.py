@@ -67,8 +67,8 @@ class GoSmsApiClient:
 
         payload = {
             "channel": channel if channel is not None else self._channel,
-            # GoSMS accepts recipients in the same string field used for single-recipient sending.
-            "recipients": ",".join(recipients),
+            # Send recipients as an array/list to match GoSMS SendMessage schema and preview behavior.
+            "recipients": recipients,
             "message": message,
         }
 
@@ -76,8 +76,24 @@ class GoSmsApiClient:
             data: dict[str, Any] = await response.json(content_type=None)
 
             if response.status >= 400:
-                _LOGGER.warning("GoSMS send failed: %s", data)
-                raise GoSmsError("Unable to send SMS via GoSMS.")
+                title = data.get("title") if isinstance(data.get("title"), str) else None
+                detail = data.get("detail") if isinstance(data.get("detail"), str) else None
+                # Log only non-sensitive high-level fields; do not log recipients/message/raw payload.
+                _LOGGER.warning(
+                    "GoSMS send failed (status=%s, title=%s)",
+                    response.status,
+                    title or "Unknown error",
+                )
+
+                safe_message = "Unable to send SMS via GoSMS."
+                if title and detail:
+                    safe_message = f"{title}: {detail}"
+                elif title:
+                    safe_message = title
+                elif detail:
+                    safe_message = detail
+
+                raise GoSmsError(safe_message)
 
             return data
 

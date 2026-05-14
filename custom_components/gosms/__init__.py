@@ -138,7 +138,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     channel=channel,
                 )
             except GoSmsError as exception:
-                raise HomeAssistantError("Failed to send SMS via GoSMS.") from exception
+                raise HomeAssistantError(
+                    f"Failed to send SMS via GoSMS: {exception}"
+                ) from exception
 
         hass.services.async_register(
             DOMAIN,
