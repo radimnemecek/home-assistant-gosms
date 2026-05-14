@@ -183,6 +183,13 @@ The workflow runs:
 
 ## Changelog
 
+### v0.9.1
+
+- Fixed HACS/Hassfest validation metadata.
+- Corrected repository URLs in manifest.
+- Simplified hacs.json.
+- No Home Assistant runtime behavior changed.
+
 ### v0.9.0
 
 - README polished for public/HACS release readiness.
