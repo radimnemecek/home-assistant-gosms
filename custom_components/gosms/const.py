@@ -7,4 +7,5 @@ CONF_CHANNEL = "channel"
 SERVICE_SEND_SMS = "send_sms"
 
 ATTR_RECIPIENT = "recipient"
+ATTR_RECIPIENTS = "recipients"
 ATTR_MESSAGE = "message"

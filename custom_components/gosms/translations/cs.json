@@ -9,6 +9,15 @@
           "client_secret": "Client Secret",
           "channel": "Channel ID"
         }
+      },
+      "reconfigure": {
+        "title": "Upravit GoSMS",
+        "description": "Aktualizujte API údaje GoSMS.",
+        "data": {
+          "client_id": "Client ID",
+          "client_secret": "Client Secret",
+          "channel": "Channel ID"
+        }
       }
     },
     "error": {

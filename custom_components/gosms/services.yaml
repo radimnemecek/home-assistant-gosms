@@ -1,14 +1,22 @@
 send_sms:
   name: Send SMS
-  description: Send an SMS message using GoSMS.
+  description: Send an SMS message using GoSMS. Either recipient or recipients is required.
   fields:
     recipient:
       name: Recipient
-      description: Phone number of the recipient.
-      required: true
+      description: Single phone number (backward-compatible field).
+      required: false
       example: "+420777123456"
       selector:
         text:
+    recipients:
+      name: Recipients
+      description: Multiple phone numbers as a list in YAML or comma/newline separated text.
+      required: false
+      example: "[\"+420777123456\", \"+420777987654\"]"
+      selector:
+        text:
+          multiline: true
     message:
       name: Message
       description: SMS message text.

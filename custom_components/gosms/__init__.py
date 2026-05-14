@@ -13,6 +13,7 @@ from .api import GoSmsApiClient, GoSmsError
 from .const import (
     ATTR_MESSAGE,
     ATTR_RECIPIENT,
+    ATTR_RECIPIENTS,
     CONF_CHANNEL,
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
@@ -25,10 +26,48 @@ PLATFORMS: list[Platform] = []
 
 SEND_SMS_SCHEMA = vol.Schema(
     {
-        vol.Required(ATTR_RECIPIENT): cv.string,
+        vol.Optional(ATTR_RECIPIENT): cv.string,
+        vol.Optional(ATTR_RECIPIENTS): vol.Any(cv.string, [cv.string]),
         vol.Required(ATTR_MESSAGE): cv.string,
     }
 )
+
+
+def _parse_recipients_from_text(value: str) -> list[str]:
+    """Parse recipients from comma/newline separated text."""
+    return [
+        item.strip()
+        for raw_line in value.splitlines()
+        for item in raw_line.split(",")
+        if item.strip()
+    ]
+
+
+def _normalize_recipients(
+    recipient: str | None,
+    recipients: str | list[str] | None,
+) -> list[str]:
+    """Build a normalized recipients list from service data."""
+    normalized: list[str] = []
+
+    # Keep backward compatibility: when both are provided, combine both inputs.
+    if recipient is not None:
+        single = recipient.strip()
+        if single:
+            normalized.append(single)
+
+    if recipients is not None:
+        if isinstance(recipients, str):
+            normalized.extend(_parse_recipients_from_text(recipients))
+        else:
+            normalized.extend(item.strip() for item in recipients if item.strip())
+
+    deduped: list[str] = []
+    for phone in normalized:
+        if phone not in deduped:
+            deduped.append(phone)
+
+    return deduped
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -42,11 +81,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     async def async_send_sms(call: ServiceCall) -> None:
         """Send SMS using GoSMS."""
-        recipient = call.data[ATTR_RECIPIENT]
+        recipient = call.data.get(ATTR_RECIPIENT)
+        recipients = call.data.get(ATTR_RECIPIENTS)
         message = call.data[ATTR_MESSAGE]
 
+        normalized_recipients = _normalize_recipients(recipient, recipients)
+        if not normalized_recipients:
+            raise HomeAssistantError(
+                "Either recipient or recipients must contain at least one phone number."
+            )
+
         try:
-            await client.async_send_sms(recipient=recipient, message=message)
+            await client.async_send_sms(recipients=normalized_recipients, message=message)
         except GoSmsError as exception:
             raise HomeAssistantError("Failed to send SMS via GoSMS.") from exception
 

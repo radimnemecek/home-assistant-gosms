@@ -2,5 +2,6 @@
   "name": "GoSMS",
   "render_readme": true,
   "domains": ["gosms"],
+  "country": ["CZ"],
   "homeassistant": "2024.6.0"
 }

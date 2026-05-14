@@ -9,6 +9,15 @@
           "client_secret": "Client Secret",
           "channel": "Channel ID"
         }
+      },
+      "reconfigure": {
+        "title": "Reconfigure GoSMS",
+        "description": "Update your GoSMS API credentials.",
+        "data": {
+          "client_id": "Client ID",
+          "client_secret": "Client Secret",
+          "channel": "Channel ID"
+        }
       }
     },
     "error": {

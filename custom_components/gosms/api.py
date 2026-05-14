@@ -55,7 +55,7 @@ class GoSmsApiClient:
 
             return str(access_token)
 
-    async def async_send_sms(self, recipient: str, message: str) -> dict[str, Any]:
+    async def async_send_sms(self, recipients: list[str], message: str) -> dict[str, Any]:
         """Send SMS message."""
         access_token = await self.async_get_access_token()
 
@@ -65,7 +65,8 @@ class GoSmsApiClient:
 
         payload = {
             "channel": self._channel,
-            "recipients": recipient,
+            # GoSMS accepts recipients in the same string field used for single-recipient sending.
+            "recipients": ",".join(recipients),
             "message": message,
         }
 
