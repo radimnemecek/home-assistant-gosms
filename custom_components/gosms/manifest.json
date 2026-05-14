@@ -1,0 +1,10 @@
+{
+  "domain": "gosms",
+  "name": "GoSMS",
+  "codeowners": ["@radaogg207"],
+  "config_flow": true,
+  "documentation": "https://github.com/radaogg207/home-assistant-gosms",
+  "iot_class": "cloud_push",
+  "requirements": [],
+  "version": "0.1.0"
+}

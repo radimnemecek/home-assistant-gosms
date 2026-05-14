@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GoSMS",
+        "description": "Enter your GoSMS API credentials.",
+        "data": {
+          "client_id": "Client ID",
+          "client_secret": "Client Secret",
+          "channel": "Channel ID"
+        }
+      }
+    },
+    "error": {
+      "auth": "Authentication failed. Check your Client ID and Client Secret.",
+      "cannot_connect": "Could not connect to GoSMS.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "This GoSMS channel is already configured."
+    }
+  }
+}

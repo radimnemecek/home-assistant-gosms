@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GoSMS",
+        "description": "Zadejte API údaje z GoSMS.",
+        "data": {
+          "client_id": "Client ID",
+          "client_secret": "Client Secret",
+          "channel": "Channel ID"
+        }
+      }
+    },
+    "error": {
+      "auth": "Přihlášení selhalo. Zkontrolujte Client ID a Client Secret.",
+      "cannot_connect": "Nepodařilo se připojit ke GoSMS.",
+      "unknown": "Neočekávaná chyba."
+    },
+    "abort": {
+      "already_configured": "Tento GoSMS kanál už je nastavený."
+    }
+  }
+}

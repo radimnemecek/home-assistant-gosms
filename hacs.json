@@ -1,0 +1,6 @@
+{
+  "name": "GoSMS",
+  "render_readme": true,
+  "domains": ["gosms"],
+  "homeassistant": "2024.6.0"
+}

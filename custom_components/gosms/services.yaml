@@ -1,0 +1,19 @@
+send_sms:
+  name: Send SMS
+  description: Send an SMS message using GoSMS.
+  fields:
+    recipient:
+      name: Recipient
+      description: Phone number of the recipient.
+      required: true
+      example: "+420777123456"
+      selector:
+        text:
+    message:
+      name: Message
+      description: SMS message text.
+      required: true
+      example: "Test SMS from Home Assistant"
+      selector:
+        text:
+          multiline: true
