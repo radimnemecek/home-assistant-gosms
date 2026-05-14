@@ -1,34 +1,65 @@
 # GoSMS for Home Assistant
 
-Custom Home Assistant integration for sending SMS messages using the GoSMS gateway.
+Custom Home Assistant integration for sending SMS messages through GoSMS.
 
 ## Status
 
-Early testing version.
+This integration is in pre-release testing. Core features are implemented, but public release polish is still in progress.
 
 ## Features
 
-- Setup through Home Assistant UI
-- Send SMS from automations, scripts and Developer Tools
-- Supports GoSMS Client ID, Client Secret and Channel ID
-- Adds a GoSMS Balance sensor refreshed periodically from organization detail
+- UI setup and reconfigure flow
+- Send SMS via `gosms.send_sms`
+- Preview SMS via `gosms.preview_sms` (does not send)
+- Optional per-action channel override (`channel`)
+- Single recipient (`recipient`) and multiple recipients (`recipients`)
+- GoSMS Balance sensor
+- Configurable balance refresh interval via integration options
+- Safe Home Assistant diagnostics with sensitive field redaction
 
-## Manual Installation
+## Requirements
 
-1. Copy `custom_components/gosms` to `/config/custom_components/gosms`
-2. Restart Home Assistant
+- Home Assistant `2024.6.0` or newer
+- Valid GoSMS API credentials:
+  - Client ID
+  - Client Secret
+  - Channel ID
+
+## Installation
+
+### HACS (Custom Repository)
+
+Until this integration is listed in default HACS repositories, install it as a custom repository:
+
+1. Open HACS.
+2. Open the three-dots menu in the top-right corner.
+3. Select **Custom repositories**.
+4. Add repository URL: `https://github.com/radaogg207/home-assistant-gosms`.
+5. Select category: **Integration**.
+6. Install **GoSMS** from HACS.
+7. Restart Home Assistant.
+
+### Manual Installation
+
+1. Copy `custom_components/gosms` to `/config/custom_components/gosms`.
+2. Restart Home Assistant.
 
 ## Setup
 
-1. Go to Settings -> Devices & services -> Add integration
-2. Search for GoSMS
-3. Enter Client ID, Client Secret and Channel ID
-4. To update credentials later, open the integration card menu and use Reconfigure
+1. Go to **Settings -> Devices & services -> Add integration**.
+2. Search for **GoSMS**.
+3. Enter:
+   - Client ID
+   - Client Secret
+   - Channel ID
 
-## Usage
+These values are available in GoSMS administration/API settings.
 
+## Actions / Services
 
-### Single Recipient (Default Channel)
+### `gosms.send_sms`
+
+Single recipient:
 
 ```yaml
 action: gosms.send_sms
@@ -37,7 +68,7 @@ data:
   message: "Test SMS from Home Assistant"
 ```
 
-### Multiple Recipients
+Multiple recipients:
 
 ```yaml
 action: gosms.send_sms
@@ -48,7 +79,7 @@ data:
   message: "Test SMS to multiple recipients"
 ```
 
-### Channel Override Example
+Optional channel override:
 
 ```yaml
 action: gosms.send_sms
@@ -58,14 +89,24 @@ data:
   message: "Test from another GoSMS channel"
 ```
 
-### SMS Preview (Dry Run)
+### `gosms.preview_sms`
 
-`gosms.preview_sms` checks message details using GoSMS test endpoint and does not send an SMS.
+`gosms.preview_sms` checks message details using the GoSMS test endpoint and does not send an SMS.
+
+Basic preview:
 
 ```yaml
 action: gosms.preview_sms
 data:
-  channel: 123456
+  recipient: "+420777123456"
+  message: "Preview SMS from Home Assistant"
+```
+
+Preview with response variable:
+
+```yaml
+action: gosms.preview_sms
+data:
   recipients:
     - "+420777123456"
     - "+420777987654"
@@ -92,41 +133,68 @@ actions:
 mode: single
 ```
 
-## Notes
+## Balance Sensor
 
-- GoSMS API credentials are stored in Home Assistant config entries.
-- Do not share your Client Secret publicly.
-- The GoSMS Balance sensor refresh interval is configurable in integration options.
-- Allowed balance update interval range is 5 to 1440 minutes.
-- Default balance update interval is 30 minutes.
-- Provide phone numbers explicitly, preferably in international format (for example `+420777123456`).
+- Provides GoSMS account balance data in Home Assistant.
+- Default update interval: 30 minutes.
+- Configurable range: 5 to 1440 minutes.
+
+## Options
+
+The integration currently supports one option:
+
+- `balance_update_interval_minutes`
 
 ## Diagnostics
 
-- Home Assistant can generate integration diagnostics when reporting issues.
-- GoSMS diagnostics redact sensitive data.
-- Review diagnostics before posting them publicly.
+- Home Assistant can generate diagnostics for this integration when reporting issues.
+- Diagnostics redact sensitive data (for example credentials/tokens and phone/message fields).
+- Review diagnostics before posting publicly.
 
 ## Security and Privacy
 
 - Never share your Client Secret.
 - Prefer international phone number format such as `+420777123456`.
 - The integration does not store SMS history.
+- Diagnostics redact sensitive fields, but always review diagnostic output before sharing it publicly.
 
-## Validation
+## Development
 
-- GitHub Actions validates this repository on push, pull request, and manual runs.
-- The workflow runs HACS validation and Home Assistant Hassfest validation.
+GitHub Actions validate this repository on push, pull request, and manual runs.
+
+The workflow runs:
+
+- HACS validation
+- Home Assistant Hassfest validation
+
+## Troubleshooting
+
+- GoSMS does not appear after manual installation:
+  - Verify folder path is `/config/custom_components/gosms`.
+  - Restart Home Assistant.
+- Authentication failed:
+  - Verify Client ID and Client Secret.
+- SMS fails:
+  - Verify account credit, Channel ID, and recipient format.
+- Balance unavailable:
+  - Check GoSMS API connectivity and Home Assistant logs.
+- `preview_sms` returns no visible output:
+  - Use `response_variable` in automations or check the response panel in Developer Tools.
 
 ## Changelog
 
+### v0.9.0
+
+- README polished for public/HACS release readiness.
+- Added explicit HACS custom repository installation instructions.
+- Expanded setup, services, options, diagnostics, security/privacy, and troubleshooting documentation.
+- No Home Assistant runtime behavior changed.
 
 ### v0.8.0
 
 - Added GitHub Actions validation workflow for HACS and Hassfest checks.
 - Added validation documentation for development/public-readiness.
 - No Home Assistant runtime behavior changed.
-
 
 ### v0.7.0
 
@@ -135,14 +203,12 @@ mode: single
 - Diagnostics do not expose raw API payload/response data.
 - Integration behavior for SMS sending, preview, channel override, and balance updates remains unchanged.
 
-
 ### v0.6.0
 
 - Added a minimal integration options flow with a single option: `balance_update_interval_minutes`.
 - Balance sensor refresh interval can now be configured in integration options within bounds 5-1440 minutes.
 - Default balance refresh interval remains 30 minutes.
 - SMS sending, SMS preview, recipient/recipients behavior, and channel override behavior remain unchanged.
-
 
 ### v0.5.0
 
