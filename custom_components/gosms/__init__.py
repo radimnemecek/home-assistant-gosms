@@ -16,9 +16,11 @@ from .const import (
     ATTR_RECIPIENT,
     ATTR_RECIPIENTS,
     ATTR_CHANNEL,
+    CONF_BALANCE_UPDATE_INTERVAL_MINUTES,
     CONF_CHANNEL,
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
+    DEFAULT_BALANCE_UPDATE_INTERVAL_MINUTES,
     DATA_CLIENT,
     DATA_COORDINATOR,
     DOMAIN,
@@ -86,7 +88,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         client_secret=entry.data[CONF_CLIENT_SECRET],
         channel=entry.data[CONF_CHANNEL],
     )
-    coordinator = GoSmsDataUpdateCoordinator(hass, client)
+    update_interval_minutes = int(
+        entry.options.get(
+            CONF_BALANCE_UPDATE_INTERVAL_MINUTES,
+            DEFAULT_BALANCE_UPDATE_INTERVAL_MINUTES,
+        )
+    )
+    coordinator = GoSmsDataUpdateCoordinator(hass, client, update_interval_minutes)
+
+    entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 
     hass.data[DOMAIN][entry.entry_id] = {
         DATA_CLIENT: client,
@@ -200,3 +210,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             hass.services.async_remove(DOMAIN, SERVICE_PREVIEW_SMS)
 
     return unload_ok
+
+
+async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload config entry when options are updated."""
+    await hass.config_entries.async_reload(entry.entry_id)

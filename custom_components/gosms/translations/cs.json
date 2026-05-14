@@ -29,5 +29,19 @@
       "already_configured": "Tento GoSMS kanál už je nastavený.",
       "reconfigure_successful": "Nastavení GoSMS bylo aktualizováno."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Možnosti GoSMS",
+        "description": "Nastavte volitelné parametry integrace GoSMS.",
+        "data": {
+          "balance_update_interval_minutes": "Interval aktualizace kreditu v minutách"
+        },
+        "data_description": {
+          "balance_update_interval_minutes": "Jak často má Home Assistant aktualizovat senzor kreditu GoSMS."
+        }
+      }
+    }
   }
 }

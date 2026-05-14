@@ -29,5 +29,19 @@
       "already_configured": "This GoSMS channel is already configured.",
       "reconfigure_successful": "GoSMS configuration was updated."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "GoSMS options",
+        "description": "Configure optional GoSMS integration settings.",
+        "data": {
+          "balance_update_interval_minutes": "Balance update interval in minutes"
+        },
+        "data_description": {
+          "balance_update_interval_minutes": "How often Home Assistant should refresh the GoSMS balance sensor."
+        }
+      }
+    }
   }
 }

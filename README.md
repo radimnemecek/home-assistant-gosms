@@ -96,9 +96,20 @@ mode: single
 
 - GoSMS API credentials are stored in Home Assistant config entries.
 - Do not share your Client Secret publicly.
-- The GoSMS Balance sensor is updated periodically (every 30 minutes).
+- The GoSMS Balance sensor refresh interval is configurable in integration options.
+- Allowed balance update interval range is 5 to 1440 minutes.
+- Default balance update interval is 30 minutes.
+- Provide phone numbers explicitly, preferably in international format (for example `+420777123456`).
 
 ## Changelog
+
+
+### v0.6.0
+
+- Added a minimal integration options flow with a single option: `balance_update_interval_minutes`.
+- Balance sensor refresh interval can now be configured in integration options within bounds 5-1440 minutes.
+- Default balance refresh interval remains 30 minutes.
+- SMS sending, SMS preview, recipient/recipients behavior, and channel override behavior remain unchanged.
 
 
 ### v0.5.0
