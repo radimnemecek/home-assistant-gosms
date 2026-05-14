@@ -9,6 +9,7 @@ _LOGGER = logging.getLogger(__name__)
 
 TOKEN_URL = "https://app.gosms.eu/oauth/v2/token"
 MESSAGES_URL = "https://app.gosms.eu/api/v1/messages"
+ORGANIZATION_DETAIL_URL = "https://app.gosms.eu/api/v1"
 
 
 class GoSmsError(Exception):
@@ -78,3 +79,33 @@ class GoSmsApiClient:
                 raise GoSmsError("Unable to send SMS via GoSMS.")
 
             return data
+
+    async def async_get_organization_detail(self) -> dict[str, Any]:
+        """Load organization details including current credit/balance."""
+        access_token = await self.async_get_access_token()
+
+        params = {
+            "access_token": access_token,
+        }
+
+        async with self._session.get(ORGANIZATION_DETAIL_URL, params=params) as response:
+            data: dict[str, Any] = await response.json(content_type=None)
+
+            if response.status >= 400:
+                raise GoSmsError("Unable to load GoSMS organization details.")
+
+            current_credit = data.get("currentCredit")
+            normalized_balance: float | None
+            try:
+                normalized_balance = (
+                    float(current_credit) if current_credit is not None else None
+                )
+            except (TypeError, ValueError):
+                normalized_balance = None
+
+            return {
+                "balance": normalized_balance,
+                "currency": data.get("currency"),
+                "invoicing_type": data.get("invoicingType"),
+                "raw": data,
+            }

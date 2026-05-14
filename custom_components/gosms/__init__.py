@@ -10,6 +10,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import GoSmsApiClient, GoSmsError
+from .coordinator import GoSmsDataUpdateCoordinator
 from .const import (
     ATTR_MESSAGE,
     ATTR_RECIPIENT,
@@ -17,11 +18,13 @@ from .const import (
     CONF_CHANNEL,
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
+    DATA_CLIENT,
+    DATA_COORDINATOR,
     DOMAIN,
     SERVICE_SEND_SMS,
 )
 
-PLATFORMS: list[Platform] = []
+PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 
 SEND_SMS_SCHEMA = vol.Schema(
@@ -72,41 +75,71 @@ def _normalize_recipients(
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up GoSMS from a config entry."""
+    hass.data.setdefault(DOMAIN, {})
+
     client = GoSmsApiClient(
         session=async_get_clientsession(hass),
         client_id=entry.data[CONF_CLIENT_ID],
         client_secret=entry.data[CONF_CLIENT_SECRET],
         channel=entry.data[CONF_CHANNEL],
     )
+    coordinator = GoSmsDataUpdateCoordinator(hass, client)
 
-    async def async_send_sms(call: ServiceCall) -> None:
-        """Send SMS using GoSMS."""
-        recipient = call.data.get(ATTR_RECIPIENT)
-        recipients = call.data.get(ATTR_RECIPIENTS)
-        message = call.data[ATTR_MESSAGE]
+    hass.data[DOMAIN][entry.entry_id] = {
+        DATA_CLIENT: client,
+        DATA_COORDINATOR: coordinator,
+    }
 
-        normalized_recipients = _normalize_recipients(recipient, recipients)
-        if not normalized_recipients:
-            raise HomeAssistantError(
-                "Either recipient or recipients must contain at least one phone number."
-            )
+    if not hass.services.has_service(DOMAIN, SERVICE_SEND_SMS):
 
-        try:
-            await client.async_send_sms(recipients=normalized_recipients, message=message)
-        except GoSmsError as exception:
-            raise HomeAssistantError("Failed to send SMS via GoSMS.") from exception
+        async def async_send_sms(call: ServiceCall) -> None:
+            """Send SMS using GoSMS."""
+            recipient = call.data.get(ATTR_RECIPIENT)
+            recipients = call.data.get(ATTR_RECIPIENTS)
+            message = call.data[ATTR_MESSAGE]
 
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_SEND_SMS,
-        async_send_sms,
-        schema=SEND_SMS_SCHEMA,
-    )
+            normalized_recipients = _normalize_recipients(recipient, recipients)
+            if not normalized_recipients:
+                raise HomeAssistantError(
+                    "Either recipient or recipients must contain at least one phone number."
+                )
+
+            domain_data = hass.data.get(DOMAIN, {})
+            if not domain_data:
+                raise HomeAssistantError("GoSMS integration is not loaded.")
+
+            first_entry_data = next(iter(domain_data.values()))
+            active_client: GoSmsApiClient = first_entry_data[DATA_CLIENT]
+
+            try:
+                await active_client.async_send_sms(
+                    recipients=normalized_recipients,
+                    message=message,
+                )
+            except GoSmsError as exception:
+                raise HomeAssistantError("Failed to send SMS via GoSMS.") from exception
+
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SEND_SMS,
+            async_send_sms,
+            schema=SEND_SMS_SCHEMA,
+        )
+
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    hass.async_create_task(coordinator.async_refresh())
 
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload GoSMS config entry."""
-    hass.services.async_remove(DOMAIN, SERVICE_SEND_SMS)
-    return True
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unload_ok:
+        hass.data[DOMAIN].pop(entry.entry_id, None)
+
+        if not hass.data[DOMAIN]:
+            hass.data.pop(DOMAIN)
+            hass.services.async_remove(DOMAIN, SERVICE_SEND_SMS)
+
+    return unload_ok

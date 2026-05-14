@@ -11,6 +11,7 @@ Early testing version.
 - Setup through Home Assistant UI
 - Send SMS from automations, scripts and Developer Tools
 - Supports GoSMS Client ID, Client Secret and Channel ID
+- Adds a GoSMS Balance sensor refreshed periodically from organization detail
 
 ## Manual Installation
 
@@ -69,8 +70,15 @@ mode: single
 
 - GoSMS API credentials are stored in Home Assistant config entries.
 - Do not share your Client Secret publicly.
+- The GoSMS Balance sensor is updated periodically (every 30 minutes).
 
 ## Changelog
+
+### v0.3.0
+
+- Added GoSMS Balance sensor using organization detail data from GoSMS API.
+- Balance refresh is handled by a DataUpdateCoordinator (30-minute interval).
+- Existing `gosms.send_sms`, `recipient`, `recipients`, config flow, and reconfigure flow stay unchanged.
 
 ### v0.2.0
 
