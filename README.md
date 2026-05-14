@@ -101,7 +101,27 @@ mode: single
 - Default balance update interval is 30 minutes.
 - Provide phone numbers explicitly, preferably in international format (for example `+420777123456`).
 
+## Diagnostics
+
+- Home Assistant can generate integration diagnostics when reporting issues.
+- GoSMS diagnostics redact sensitive data.
+- Review diagnostics before posting them publicly.
+
+## Security and Privacy
+
+- Never share your Client Secret.
+- Prefer international phone number format such as `+420777123456`.
+- The integration does not store SMS history.
+
 ## Changelog
+
+
+### v0.7.0
+
+- Added Home Assistant diagnostics support for GoSMS config entries.
+- Diagnostics include safe integration and runtime information while redacting sensitive fields.
+- Diagnostics do not expose raw API payload/response data.
+- Integration behavior for SMS sending, preview, channel override, and balance updates remains unchanged.
 
 
 ### v0.6.0
