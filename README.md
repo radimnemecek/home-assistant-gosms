@@ -34,7 +34,7 @@ Until this integration is listed in default HACS repositories, install it as a c
 1. Open HACS.
 2. Open the three-dots menu in the top-right corner.
 3. Select **Custom repositories**.
-4. Add repository URL: `https://github.com/radaogg207/home-assistant-gosms`.
+4. Add repository URL: `https://github.com/radimnemecek/home-assistant-gosms`.
 5. Select category: **Integration**.
 6. Install **GoSMS** from HACS.
 7. Restart Home Assistant.
