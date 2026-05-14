@@ -4,7 +4,7 @@ Custom Home Assistant integration for sending SMS messages through GoSMS.
 
 ## Status
 
-This integration is in pre-release testing. Core features are implemented, but public release polish is still in progress.
+Release candidate for public testing.
 
 ## Features
 
